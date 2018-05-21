@@ -6,7 +6,7 @@ import $ from 'jquery';
 import 'jplayer';
 
 
-
+let duration = null;
 class App extends Component {
   constructor(){
     super();
@@ -25,16 +25,27 @@ class App extends Component {
       wmode: 'window'
     });
     $('#player').bind($.jPlayer.event.timeupdate, (e) => {
+      duration = e.jPlayer.status.duration;
       this.setState({
-        progress: Math.round(e.jPlayer.status.currentTime)
-      })
+        progress: e.jPlayer.status.currentPercentAbsolute 
+      });
+      //console.log(this.state);
     });
+  }
+  componentWillUnmount(){
+    $('#player').unbind($.jPlayer.event.timeupdate);
+  }
+  progressChangeHandle(progress){
+    $('#player').jPlayer('play', duration * progress);
   }
   render() {
     return (
       <div className="App">
         <Header />
-        <Progress progress={this.state.progress} ></Progress>
+        <Progress 
+          progress={this.state.progress} 
+          onProgressChange={this.progressChangeHandle.bind(this)}>
+        </Progress>
       </div>
     );
   }

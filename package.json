@@ -7,11 +7,17 @@
     "jplayer": "^2.9.2",
     "jquery": "^3.3.1",
     "location": "^0.0.1",
+    "navigator": "^1.0.1",
+    "node-jquery": "^0.1.0",
+    "node-less-chokidar": "^0.1.2",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
-    "react-scripts": "1.1.4"
+    "react-scripts": "1.1.4",
+    "xmlhttprequest": "^1.8.0"
   },
   "scripts": {
+    "build-css": "node-less-chokidar src/ -o src/",
+    "watch-css": "npm run build-css && node-less-chokidar src/ -o src/ --watch --recursive",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
