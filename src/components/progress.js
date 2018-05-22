@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import './progress.css';
 
 class Progress extends Component{
+    static defaultProps = {
+        barColor: '#2f9842'
+    }
     changeProgress(e){
         let progressBar = this.refs.progressBar;
         let progress = (e.clientX - progressBar.getBoundingClientRect().left) / progressBar.clientWidth;
@@ -10,7 +13,7 @@ class Progress extends Component{
     render(){
         return (
             <div className="components-progress" ref="progressBar" onClick={this.changeProgress.bind(this)}>
-                <div className="progress" style={{width: `${this.props.progress}%`}} ></div>
+                <div className="progress" style={{width: `${this.props.progress}%`, background: this.props.barColor}} ></div>
             </div>
         );
     }

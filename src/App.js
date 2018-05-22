@@ -1,20 +1,21 @@
 import React, { Component } from 'react';
 import './App.css';
 import Header from './components/header';
-import Progress from './components/progress';
 import $ from 'jquery';
 import 'jplayer';
+import Player from './page/player';
+import {MUSIC_LIST} from './config/musiclist';
+import List from './page/list';
 
-
-let duration = null;
 class App extends Component {
-  constructor(){
-    super();
-    this.state={
-      progress: '-'
-    };
-  }
-  componentDidMount(){
+ constructor(){
+   super();
+   this.state = {
+     currentMusicItem: MUSIC_LIST[0],
+     MusicList: MUSIC_LIST
+   }
+ }
+ componentDidMount(){
     $('#player').jPlayer({
       ready: function(){
         $(this).jPlayer('setMedia',{
@@ -24,28 +25,12 @@ class App extends Component {
       supplied: 'mp3',
       wmode: 'window'
     });
-    $('#player').bind($.jPlayer.event.timeupdate, (e) => {
-      duration = e.jPlayer.status.duration;
-      this.setState({
-        progress: e.jPlayer.status.currentPercentAbsolute 
-      });
-      //console.log(this.state);
-    });
   }
-  componentWillUnmount(){
-    $('#player').unbind($.jPlayer.event.timeupdate);
-  }
-  progressChangeHandle(progress){
-    $('#player').jPlayer('play', duration * progress);
-  }
-  render() {
+ render() {
     return (
       <div className="App">
-        <Header />
-        <Progress 
-          progress={this.state.progress} 
-          onProgressChange={this.progressChangeHandle.bind(this)}>
-        </Progress>
+        <Header />  
+        <List MusicList={this.state.MusicList} currentMusicItem={this.state.currentMusicItem}></List>
       </div>
     );
   }
