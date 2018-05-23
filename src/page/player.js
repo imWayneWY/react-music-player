@@ -3,6 +3,8 @@ import Progress from '../components/progress';
 import $ from 'jquery';
 import 'jplayer';
 import './player.css';
+import { Link } from 'react-router-dom';
+
 
 let duration = null;
 class Player extends Component {
@@ -11,7 +13,8 @@ class Player extends Component {
     this.state={
       progress: 0,
       volume: 0,
-      isPlay: true
+      isPlay: true,
+      leftTime: ''
     };
   }
   componentDidMount(){
@@ -19,15 +22,23 @@ class Player extends Component {
       duration = e.jPlayer.status.duration;
       this.setState({
         progress: e.jPlayer.status.currentPercentAbsolute,
-        volume: e.jPlayer.options.volume * 100
+        volume: e.jPlayer.options.volume * 100,
+        leftTime: this.formatTime(duration * (1 - e.jPlayer.status.currentPercentAbsolute / 100))
       });
       //console.log(this.state);
     });
   }
+  formatTime(time){
+    time  = Math.floor(time);
+    let min = Math.floor(time/60);
+    let sec = Math.floor(time%60);
+    sec = sec < 10 ? `0${sec}` : sec;
+    return `${min}:${sec}`;
+  }
   componentWillUnmount(){
     $('#player').unbind($.jPlayer.event.timeupdate);
   }
-  progressChangeHandle(progress){
+  changeProgressHandler(progress){
     $('#player').jPlayer('play', duration * progress);
   }
   changeVolumeHandler(progress){
@@ -44,13 +55,15 @@ class Player extends Component {
     });
   }
   next(){
+    this.props.playNext();
   }
   prev(){
+    this.props.playNext('prev');
   }
   render() {
     return (
       <div className="player-page">
-
+      <h1 className='caption'><Link to="/list">my favourite music &gt;</Link></h1>
       <div className="mt20 row">
         <div className="controll-wrapper">
           <h2 className="music-title">{this.props.currentMusicItem.title}</h2>
@@ -62,7 +75,7 @@ class Player extends Component {
               <div className="volume-wrapper">
                 <Progress
           progress={this.state.volume}
-          onProgressChange={this.changeVolumeHandler}
+          onProgressChange={this.changeVolumeHandler.bind(this)}
           barColor='#aaa'
                 >
                 </Progress>
@@ -72,7 +85,7 @@ class Player extends Component {
           <div style={{height: 10, lineHeight: '10px'}}>
             <Progress
       progress={this.state.progress}
-      onProgressChange={this.changeProgressHandler}
+      onProgressChange={this.changeProgressHandler.bind(this)}
             >
             </Progress>
           </div>

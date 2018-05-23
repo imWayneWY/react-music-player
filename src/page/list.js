@@ -4,7 +4,7 @@ import MusicListItem from '../components/musicListItem';
 class List extends Component{
     render(){
         let listEle = null;
-        listEle = this.props.MusicList.map((item) =>{
+        listEle = this.props.musicList.map((item) =>{
             return <MusicListItem key={item.id} musicItem={item} focus={item===this.props.currentMusicItem}></MusicListItem>
         });
         return (

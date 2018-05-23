@@ -6,32 +6,81 @@ import 'jplayer';
 import Player from './page/player';
 import {MUSIC_LIST} from './config/musiclist';
 import List from './page/list';
+import {HashRouter as Router,  Route, Switch} from 'react-router-dom';
+import Pubsub from 'pubsub-js';
 
 class App extends Component {
  constructor(){
    super();
    this.state = {
      currentMusicItem: MUSIC_LIST[0],
-     MusicList: MUSIC_LIST
+     musicList: MUSIC_LIST
    }
  }
- componentDidMount(){
-    $('#player').jPlayer({
-      ready: function(){
-        $(this).jPlayer('setMedia',{
-          mp3: "http://oj4t8z2d5.bkt.clouddn.com/%E9%AD%94%E9%AC%BC%E4%B8%AD%E7%9A%84%E5%A4%A9%E4%BD%BF.mp3"
+ playMusic(musicItem){
+    $('#player').jPlayer(
+      'setMedia',{
+          mp3: musicItem.file 
         }).jPlayer('play');
-      },
+    this.setState({
+      currentMusicItem: musicItem
+    })
+ }
+ indexOfMusicList(musicItem){
+    return this.state.musicList.indexOf(musicItem);
+ }
+ playNext(type='next'){
+    let index = this.indexOfMusicList(this.state.currentMusicItem);
+    let length = this.state.musicList.length;
+    let newIndex = null;
+    if(type === 'next') {
+      newIndex = (index + 1) % length;
+    } else {
+      newIndex = (index - 1 + length) % length;
+    }
+    console.log(newIndex);
+    this.playMusic(this.state.musicList[newIndex]);
+ }
+ componentDidMount(){
+     $('#player').jPlayer({
       supplied: 'mp3',
       wmode: 'window'
     });
-  }
+    this.playMusic(this.state.currentMusicItem);
+    $("#player").bind($.jPlayer.event.ended, (e)=> {
+      this.playNext();
+    });
+    Pubsub.subscribe("PLAY_MUSIC",(msg,musicItem)=>{
+      this.playMusic(musicItem);
+    });
+    Pubsub.subscribe("DELETE_MUSIC",(msg,musicItem)=>{
+      this.setState({
+        musicList: this.state.musicList.filter((item) => {
+          return item !== musicItem;
+        })
+      });
+    });
+ }
+ componentWillUnmount(){
+   Pubsub.unsubscribe("PLAY_MUSIC");
+   Pubsub.unsubscribe("DELETE_MUSIC");
+   $("#player").unbind($.jPlayer.event.end);
+ }
  render() {
     return (
-      <div className="App">
-        <Header />  
-        <List MusicList={this.state.MusicList} currentMusicItem={this.state.currentMusicItem}></List>
-      </div>
+      <Router>
+        <div>
+          <Header />
+          <Switch>
+            <Route exact path='/' render={()=>{
+              return <Player currentMusicItem={this.state.currentMusicItem} playNext={this.playNext.bind(this)} />
+            }} />
+            <Route path='/list' render={()=> {
+              return <List currentMusicItem={this.state.currentMusicItem} musicList={this.state.musicList}/>
+            }} />
+          </Switch>
+        </div>
+      </Router>
     );
   }
 }
