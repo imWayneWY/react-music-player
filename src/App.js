@@ -14,7 +14,8 @@ class App extends Component {
    super();
    this.state = {
      currentMusicItem: MUSIC_LIST[0],
-     musicList: MUSIC_LIST
+     musicList: MUSIC_LIST,
+     repeatType: "cycle"
    }
  }
  playMusic(musicItem){
@@ -32,13 +33,19 @@ class App extends Component {
  playNext(type='next'){
     let index = this.indexOfMusicList(this.state.currentMusicItem);
     let length = this.state.musicList.length;
-    let newIndex = null;
-    if(type === 'next') {
-      newIndex = (index + 1) % length;
-    } else {
-      newIndex = (index - 1 + length) % length;
+    let newIndex = index;
+    let repeatType = this.state.repeatType;
+    if(repeatType === 'cycle'){
+      if(type === 'next') {
+        newIndex = (index + 1) % length;
+      } else {
+        newIndex = (index - 1 + length) % length;
+      }
+    } else if(repeatType === 'random') {
+      do{
+        newIndex = Math.floor(length * Math.random());
+      } while (newIndex === index)
     }
-    console.log(newIndex);
     this.playMusic(this.state.musicList[newIndex]);
  }
  componentDidMount(){
@@ -66,6 +73,20 @@ class App extends Component {
    Pubsub.unsubscribe("DELETE_MUSIC");
    $("#player").unbind($.jPlayer.event.end);
  }
+ changeRepeatHandler(){
+   let newType = this.state.repeatType;
+   if(newType === 'cycle'){
+     newType = 'random';
+   } else if(newType === 'random'){
+     newType = 'once';
+   } else {
+     newType = 'cycle';
+   }
+
+   this.setState({
+     repeatType:  newType
+   });
+ }
  render() {
     return (
       <Router>
@@ -73,10 +94,18 @@ class App extends Component {
           <Header />
           <Switch>
             <Route exact path='/' render={()=>{
-              return <Player currentMusicItem={this.state.currentMusicItem} playNext={this.playNext.bind(this)} />
+              return <Player 
+                currentMusicItem={this.state.currentMusicItem} 
+                playNext={this.playNext.bind(this)} 
+                repeatType={this.state.repeatType}
+                changeRepeatHandler={this.changeRepeatHandler.bind(this)}
+                />
             }} />
             <Route path='/list' render={()=> {
-              return <List currentMusicItem={this.state.currentMusicItem} musicList={this.state.musicList}/>
+              return <List 
+                currentMusicItem={this.state.currentMusicItem}  
+                musicList={this.state.musicList}
+                />
             }} />
           </Switch>
         </div>

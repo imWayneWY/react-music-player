@@ -55,10 +55,19 @@ class Player extends Component {
     });
   }
   next(){
+    this.setState({
+      isPlay: true
+    });
     this.props.playNext();
   }
   prev(){
+    this.setState({
+      isPlay: true
+    });
     this.props.playNext('prev');
+  }
+  changeRepeat(){
+    this.props.changeRepeatHandler();
   }
   render() {
     return (
@@ -96,7 +105,7 @@ class Player extends Component {
               <i className="icon next ml20" onClick={this.next.bind(this)}></i>
             </div>
             <div className="-col-auto">
-              <i className={`icon repeat-${this.props.repeatType}`} onClick={this.changeRepeat}></i>
+              <i className={`icon repeat-${this.props.repeatType}`} onClick={this.changeRepeat.bind(this)}></i>
             </div>
           </div>
         </div>

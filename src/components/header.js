@@ -7,7 +7,7 @@ class Header extends Component{
             <div className="components-header row">
                 <img src="logo.png" width="40" alt="" className="-col-auto"/>
                 <h1 className="caption">React Music Player</h1>
-            </div>
+           </div>
         );
     }
 }
